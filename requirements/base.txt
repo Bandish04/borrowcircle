@@ -9,3 +9,4 @@ celery>=5.3,<5.5
 redis>=5.0,<5.2
 django-cors-headers>=4.3,<4.5
 django-extensions>=3.2,<3.3
+django-filter>=24.0,<25.0
