@@ -1,8 +1,6 @@
 import uuid
 from django.conf import settings
 from django.db import models
-from django.contrib.postgres.constraints import ExclusionConstraint
-from django.contrib.postgres.fields import DateTimeRangeField, RangeOperators
 from apps.items.models import Item
 
 class Reservation(models.Model):
@@ -27,19 +25,6 @@ class Reservation(models.Model):
     idempotency_key = models.UUIDField(unique=True, help_text="Prevents duplicate bookings.")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        constraints = [
-            # This is the "Magic Guard": prevents overlapping approved/active bookings in Postgres
-            ExclusionConstraint(
-                name='no_overlapping_reservations',
-                expressions=(
-                    ('item', RangeOperators.EQUAL),
-                    (models.F('start_at'), RangeOperators.IOP), # IOP = [,)
-                ),
-                condition=models.Q(status__in=[Status.APPROVED, Status.ACTIVE]),
-            ),
-        ]
 
     def __str__(self):
         return f"{self.item.title} - {self.borrower.username} ({self.status})"

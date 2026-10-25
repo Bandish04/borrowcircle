@@ -26,6 +26,7 @@ INSTALLED_APPS = [
 
       'apps.accounts',
       'apps.items',
+      'apps.reservations', 
 ]
 
 MIDDLEWARE = [
