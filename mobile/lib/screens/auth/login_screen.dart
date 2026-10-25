@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import '../../theme.dart';
-import 'register_screen.dart';
+// We will create the RegisterScreen in the next step
+import 'register_screen.dart'; 
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -29,10 +30,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState() {
+    setState(() {
       _isLoading = true;
       _errorMessage = null;
-    };
+    });
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
@@ -43,9 +44,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      if (response['statusCode'] != 200) {
+      if (response['statusCode'] == 200) {
+        // Success! AuthService already updated _isAuthenticated
+        // In the next phase, we'll setup routing to redirect home
+      } else {
         setState(() {
-          _errorMessage = response['body']['detail'] ?? 'Login failed. Please check your credentials.';
+          _errorMessage = response['body']['detail'] ?? 'Login failed. Check your credentials.';
           _isLoading = false;
         });
       }
@@ -71,87 +75,47 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // App Branding / Logo
-                  Icon(
-                    Icons.handshake_rounded,
-                    size: 80,
-                    color: BorrowCircleTheme.primary,
-                  ),
+                  // App Branding
+                  const Icon(Icons.handshake_rounded, size: 80, color: BorrowCircleTheme.primary),
                   const SizedBox(height: 16),
                   const Text(
                     'BorrowCircle',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: BorrowCircleTheme.textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Share items, build community, save money.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: BorrowCircleTheme.textDark),
                   ),
                   const SizedBox(height: 32),
 
-                  // Error Message
+                  // Error Display
                   if (_errorMessage != null) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.shade200),
-                      ),
-                      child: Text(
-                        _errorMessage!,
-                        style: TextStyle(color: Colors.red.shade700),
-                      ),
+                      decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(8)),
+                      child: Text(_errorMessage!, style: TextStyle(color: Colors.red.shade700)),
                     ),
                     const SizedBox(height: 16),
                   ],
 
-                  // Email Field
+                  // Email
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       labelText: 'Email Address',
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty || !value.contains('@')) {
-                        return 'Please enter a valid email address';
-                      }
-                      return null;
-                    },
+                    validator: (value) => (value == null || !value.contains('@')) ? 'Enter a valid email' : null,
                   ),
                   const SizedBox(height: 16),
 
-                  // Password Field
+                  // Password
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty || value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
+                    validator: (value) => (value == null || value.length < 6) ? 'Password too short' : null,
                   ),
                   const SizedBox(height: 24),
 
@@ -162,46 +126,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       backgroundColor: BorrowCircleTheme.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text(
-                            'Log In',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Navigate to Registration
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Don't have an account?"),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const RegisterScreen(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          'Sign Up',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
+                    child: _isLoading 
+                        ? const CircularProgressIndicator(color: Colors.white) 
+                        : const Text('Log In', style: TextStyle(fontSize: 16)),
                   ),
                 ],
               ),

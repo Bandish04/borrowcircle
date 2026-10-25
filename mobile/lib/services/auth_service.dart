@@ -10,24 +10,31 @@ class AuthService with ChangeNotifier {
   bool _isAuthenticated = false;
   bool get isAuthenticated => _isAuthenticated;
 
-  // Key names for storage
+  // Key names for local storage
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
 
-  // Initialize: check if user is logged in
   AuthService() {
     _checkAuthStatus();
   }
 
+  // Verify if a token is already saved when the app starts
   Future<void> _checkAuthStatus() async {
-    String? token = await _storage.read(key: _accessTokenKey);
-    _isAuthenticated = token != null;
+    try {
+      String? token = await _storage.read(
+        key: _accessTokenKey,
+        aOptions: const AndroidOptions(encryptedSharedPreferences: true),
+      );
+      _isAuthenticated = token != null;
+    } catch (e) {
+      _isAuthenticated = false;
+    }
     notifyListeners();
   }
 
-  // Register
+  // Register a new account
   Future<Map<String, dynamic>> register(Map<String, dynamic> data) async {
-    final response = await ApiService.post('accounts/register/', data);
+    final response = await ApiService.post('auth/register/', data);
 
     if (response['statusCode'] == 201) {
       await _saveTokens(response['body']['access'], response['body']['refresh']);
@@ -37,9 +44,9 @@ class AuthService with ChangeNotifier {
     return response;
   }
 
-  // Login
+  // Log in to an existing account
   Future<Map<String, dynamic>> login(String email, String password) async {
-    final response = await ApiService.post('accounts/login/', {
+    final response = await ApiService.post('auth/login/', {
       'email': email,
       'password': password,
     });
@@ -52,31 +59,41 @@ class AuthService with ChangeNotifier {
     return response;
   }
 
-  // Logout
+  // Log out of the account
   Future<void> logout() async {
-    String? refresh = await _storage.read(key: _refreshTokenKey);
+    String? refresh = await _storage.read(
+      key: _refreshTokenKey,
+      aOptions: const AndroidOptions(encryptedSharedPreferences: true),
+    );
 
-    // Attempt to blacklist token on server
     if (refresh != null) {
       try {
         await http.post(
-          Uri.parse('${ApiService.baseUrl}/accounts/logout/'),
+          Uri.parse('${ApiService.baseUrl}/auth/logout/'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'refresh': refresh}),
         );
       } catch (e) {
-        // Silently fail if network issue during logout
+        // Silently fail if server is down during logout
       }
     }
 
-    await _storage.delete(key: _accessTokenKey);
-    await _storage.delete(key: _refreshTokenKey);
+    await _storage.delete(key: _accessTokenKey, aOptions: const AndroidOptions(encryptedSharedPreferences: true));
+    await _storage.delete(key: _refreshTokenKey, aOptions: const AndroidOptions(encryptedSharedPreferences: true));
     _isAuthenticated = false;
     notifyListeners();
   }
 
   Future<void> _saveTokens(String access, String refresh) async {
-    await _storage.write(key: _accessTokenKey, value: access);
-    await _storage.write(key: _refreshTokenKey, value: refresh);
+    await _storage.write(
+      key: _accessTokenKey,
+      value: access,
+      aOptions: const AndroidOptions(encryptedSharedPreferences: true),
+    );
+    await _storage.write(
+      key: _refreshTokenKey,
+      value: refresh,
+      aOptions: const AndroidOptions(encryptedSharedPreferences: true),
+    );
   }
-}
+} 
