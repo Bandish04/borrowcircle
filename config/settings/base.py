@@ -23,6 +23,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_spectacular',
     'django_extensions',
+
+      'apps.accounts',
 ]
 
 MIDDLEWARE = [
@@ -120,3 +122,5 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
+
+AUTH_USER_MODEL = 'accounts.User'
