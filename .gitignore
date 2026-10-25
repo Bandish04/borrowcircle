@@ -1,0 +1,17 @@
+# Python / Virtual Environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+media/
+staticfiles/
+*.sqlite3
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+.idea/
+.vscode/
