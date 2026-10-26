@@ -5,7 +5,8 @@ import '../../theme.dart';
 import 'item_detail_screen.dart';
 import '../reservations/my_reservations_screen.dart';
 import 'add_item_screen.dart';
-import '../messaging/conversations_screen.dart'; // 1. Added import for ConversationsScreen
+import '../messaging/conversations_screen.dart';
+import '../profile/profile_screen.dart'; // 1. Added import for ProfileScreen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,7 +30,18 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Explore BorrowCircle'),
         actions: [
-          // New: Navigate to Conversations
+          // New: Navigate to Profile
+          IconButton(
+            icon: const Icon(Icons.person_outline),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProfileScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.chat_bubble_outline),
             onPressed: () {
