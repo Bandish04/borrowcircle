@@ -3,7 +3,8 @@ import '../../models/item.dart';
 import '../../services/marketplace_service.dart';
 import '../../theme.dart';
 import 'item_detail_screen.dart';
-import '../reservations/my_reservations_screen.dart'; // 1. Added import for MyReservationsScreen
+import '../reservations/my_reservations_screen.dart';
+import 'add_item_screen.dart'; // 1. Added import for AddItemScreen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,7 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Explore BorrowCircle'),
         actions: [
-          // 2. Added button to navigate to My Reservations Screen
           IconButton(
             icon: const Icon(Icons.list_alt),
             onPressed: () {
@@ -44,6 +44,23 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.search),
           ),
         ],
+      ),
+      // 2. Added Floating Action Button for listing items
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddItemScreen()),
+          ).then((_) {
+            // Refresh list after returning from AddItemScreen
+            setState(() {
+              _itemsFuture = MarketplaceService.fetchItems();
+            });
+          });
+        },
+        backgroundColor: BorrowCircleTheme.primary,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('List Item', style: TextStyle(color: Colors.white)),
       ),
       body: FutureBuilder<List<Item>>(
         future: _itemsFuture,
@@ -77,8 +94,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-
-
 class _ItemCard extends StatelessWidget {
   final Item item;
   const _ItemCard({required this.item});
@@ -89,7 +104,9 @@ class _ItemCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ItemDetailScreen(item: item)),
+          MaterialPageRoute(
+            builder: (context) => ItemDetailScreen(item: item),
+          ),
         );
       },
       child: Card(
@@ -112,7 +129,6 @@ class _ItemCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  // Showing Security Deposit instead of Daily Rate
                   Text('Deposit: \$${item.depositAmount.toStringAsFixed(2)}', style: TextStyle(color: BorrowCircleTheme.primary, fontSize: 12)),
                   Text(item.location, style: const TextStyle(fontSize: 12, color: Colors.grey)),
                 ],
