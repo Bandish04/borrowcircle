@@ -6,6 +6,7 @@ import 'api_service.dart';
 class ReservationService {
   static final _storage = const FlutterSecureStorage();
 
+  // Create a new reservation request
   static Future<Map<String, dynamic>> createReservation({
     required String itemId,
     required String startDate,
@@ -31,5 +32,23 @@ class ReservationService {
       'statusCode': response.statusCode,
       'body': jsonDecode(response.body),
     };
+  }
+
+  // Fetch reservations for the logged-in user
+  static Future<List<dynamic>> getMyReservations() async {
+    String? token = await _storage.read(key: 'access_token');
+    
+    final response = await http.get(
+      Uri.parse('${ApiService.baseUrl}/reservations/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load reservations');
+    }
   }
 }

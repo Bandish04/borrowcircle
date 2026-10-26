@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/item.dart';
 import '../../theme.dart';
+import '../reservations/reservation_screen.dart'; // 1. Added the reservation screen import
 
 class ItemDetailScreen extends StatelessWidget {
   final Item item;
@@ -106,9 +107,12 @@ class ItemDetailScreen extends StatelessWidget {
         child: ElevatedButton(
           onPressed: item.isAvailable
               ? () {
-                  // TODO: Navigate to Reservation / Request Form in the next step
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Borrow request feature coming up next!')),
+                  // 2. Wired up navigation to the ReservationScreen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReservationScreen(item: item),
+                    ),
                   );
                 }
               : null,
