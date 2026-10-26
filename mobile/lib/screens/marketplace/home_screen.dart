@@ -3,6 +3,7 @@ import '../../models/item.dart';
 import '../../services/marketplace_service.dart';
 import '../../theme.dart';
 import 'item_detail_screen.dart';
+import '../reservations/my_reservations_screen.dart'; // 1. Added import for MyReservationsScreen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,7 +26,24 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Explore BorrowCircle'),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.search))],
+        actions: [
+          // 2. Added button to navigate to My Reservations Screen
+          IconButton(
+            icon: const Icon(Icons.list_alt),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MyReservationsScreen(),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.search),
+          ),
+        ],
       ),
       body: FutureBuilder<List<Item>>(
         future: _itemsFuture,
