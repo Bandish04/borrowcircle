@@ -36,7 +36,7 @@ class AuthWrapper extends StatelessWidget {
     final authService = Provider.of<AuthService>(context);
 
     if (authService.isAuthenticated) {
-      return const HomeScreenPlaceholder();
+      return const HomeScreen();
     } else {
       return const LoginScreen();
     }
