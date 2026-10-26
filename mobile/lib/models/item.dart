@@ -2,8 +2,8 @@ class Item {
   final String id;
   final String title;
   final String description;
-  final double dailyRate;
-  final double? securityDeposit;
+  final double depositAmount;
+  final int maxLoanDays;
   final String location;
   final String condition;
   final bool isAvailable;
@@ -14,8 +14,8 @@ class Item {
     required this.id,
     required this.title,
     required this.description,
-    required this.dailyRate,
-    this.securityDeposit,
+    required this.depositAmount,
+    required this.maxLoanDays,
     required this.location,
     required this.condition,
     required this.isAvailable,
@@ -24,7 +24,7 @@ class Item {
   });
 
   factory Item.fromJson(Map<String, dynamic> json) {
-    // Extract primary photo if available
+    // Extract cover photo if available
     String? photoUrl;
     if (json['photos'] != null && (json['photos'] as List).isNotEmpty) {
       photoUrl = json['photos'][0]['image'];
@@ -34,15 +34,13 @@ class Item {
       id: json['id'].toString(),
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      dailyRate: double.tryParse(json['daily_rate'].toString()) ?? 0.0,
-      securityDeposit: json['security_deposit'] != null 
-          ? double.tryParse(json['security_deposit'].toString()) 
-          : null,
-      location: json['location'] ?? 'Local',
+      depositAmount: double.tryParse(json['deposit_amount'].toString()) ?? 0.0,
+      maxLoanDays: json['max_loan_days'] ?? 14,
+      location: json['pickup_area'] ?? 'Local',
       condition: json['condition'] ?? 'Good',
-      isAvailable: json['is_available'] ?? true,
+      isAvailable: json['status'] == 'active',
       imageUrl: photoUrl ?? json['image_url'],
-      ownerName: json['owner_username'] ?? json['owner']?['username'] ?? 'Community Member',
+      ownerName: json['owner_username'] ?? 'Community Member',
     );
   }
-}   
+}
