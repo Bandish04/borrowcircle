@@ -21,4 +21,15 @@ class MarketplaceService {
       throw Exception('Failed to load items');
     }
   }
+
+
+    // Add this to your MarketplaceService class:
+  static Future<List<dynamic>> fetchCategories() async {
+    final response = await http.get(Uri.parse('${ApiService.baseUrl}/items/categories/'));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load categories');
+    }
+  }
 }

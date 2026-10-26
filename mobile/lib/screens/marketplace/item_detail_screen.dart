@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/item.dart';
 import '../../theme.dart';
-import '../reservations/reservation_screen.dart'; // 1. Added the reservation screen import
+import '../reservations/reservation_screen.dart';
 
 class ItemDetailScreen extends StatelessWidget {
   final Item item;
@@ -32,7 +32,7 @@ class ItemDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title & Price Row
+                  // Title & Deposit Row (Free item with security deposit)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,9 +43,15 @@ class ItemDetailScreen extends StatelessWidget {
                           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: BorrowCircleTheme.textDark),
                         ),
                       ),
-                      Text(
-                        '\$${item.dailyRate.toStringAsFixed(2)}/day',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: BorrowCircleTheme.primary),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const Text('Security Deposit', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                          Text(
+                            '\$${item.depositAmount.toStringAsFixed(2)}',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: BorrowCircleTheme.primary),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -107,7 +113,6 @@ class ItemDetailScreen extends StatelessWidget {
         child: ElevatedButton(
           onPressed: item.isAvailable
               ? () {
-                  // 2. Wired up navigation to the ReservationScreen
                   Navigator.push(
                     context,
                     MaterialPageRoute(

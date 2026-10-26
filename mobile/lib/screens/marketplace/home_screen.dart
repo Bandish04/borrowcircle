@@ -77,6 +77,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+
+
 class _ItemCard extends StatelessWidget {
   final Item item;
   const _ItemCard({required this.item});
@@ -87,9 +89,7 @@ class _ItemCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => ItemDetailScreen(item: item),
-          ),
+          MaterialPageRoute(builder: (context) => ItemDetailScreen(item: item)),
         );
       },
       child: Card(
@@ -112,7 +112,8 @@ class _ItemCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  Text('\$${item.dailyRate.toStringAsFixed(2)} / day', style: TextStyle(color: BorrowCircleTheme.primary)),
+                  // Showing Security Deposit instead of Daily Rate
+                  Text('Deposit: \$${item.depositAmount.toStringAsFixed(2)}', style: TextStyle(color: BorrowCircleTheme.primary, fontSize: 12)),
                   Text(item.location, style: const TextStyle(fontSize: 12, color: Colors.grey)),
                 ],
               ),
