@@ -4,7 +4,8 @@ import '../../services/marketplace_service.dart';
 import '../../theme.dart';
 import 'item_detail_screen.dart';
 import '../reservations/my_reservations_screen.dart';
-import 'add_item_screen.dart'; // 1. Added import for AddItemScreen
+import 'add_item_screen.dart';
+import '../messaging/conversations_screen.dart'; // 1. Added import for ConversationsScreen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,6 +29,18 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Explore BorrowCircle'),
         actions: [
+          // New: Navigate to Conversations
+          IconButton(
+            icon: const Icon(Icons.chat_bubble_outline),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ConversationsScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.list_alt),
             onPressed: () {
@@ -45,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      // 2. Added Floating Action Button for listing items
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(

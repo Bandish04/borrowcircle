@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart'; // Add this!
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'api_service.dart';
@@ -25,13 +25,39 @@ class AuthService with ChangeNotifier {
     try {
       String? token = await _storage.read(
         key: _accessTokenKey,
-        aOptions: _storageOptions, // Use the dynamic option
+        aOptions: _storageOptions,
       );
       _isAuthenticated = token != null;
     } catch (e) {
       _isAuthenticated = false;
     }
     notifyListeners();
+  }
+
+  // Fetch current user's profile details and reliability score
+  Future<Map<String, dynamic>?> getUserProfile() async {
+    try {
+      String? token = await _storage.read(
+        key: _accessTokenKey,
+        aOptions: _storageOptions,
+      );
+      if (token == null) return null;
+
+      final response = await http.get(
+        Uri.parse('${ApiService.baseUrl}/auth/me/'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+    } catch (e) {
+      // Silently catch errors during fetch
+    }
+    return null;
   }
 
   Future<Map<String, dynamic>> register(Map<String, dynamic> data) async {
