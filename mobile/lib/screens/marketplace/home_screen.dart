@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/item.dart';
 import '../../services/marketplace_service.dart';
 import '../../theme.dart';
+import 'item_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -64,30 +65,42 @@ class _ItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              color: Colors.grey.shade200,
-              child: const Center(child: Icon(Icons.image, size: 50, color: Colors.grey)),
-            ),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ItemDetailScreen(item: item),
           ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                Text('\$${item.dailyRate.toStringAsFixed(2)} / day', style: TextStyle(color: BorrowCircleTheme.primary)),
-                Text(item.location, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-              ],
+        );
+      },
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                color: Colors.grey.shade200,
+                child: item.imageUrl != null
+                    ? Image.network(item.imageUrl!, fit: BoxFit.cover, width: double.infinity)
+                    : const Center(child: Icon(Icons.image, size: 50, color: Colors.grey)),
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text('\$${item.dailyRate.toStringAsFixed(2)} / day', style: TextStyle(color: BorrowCircleTheme.primary)),
+                  Text(item.location, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
