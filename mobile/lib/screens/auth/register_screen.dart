@@ -28,7 +28,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleRegister() async {
-    if (!_formKey.currentState!.validate()) return;
+    // 1. Debug: Validate form
+    if (!_formKey.currentState!.validate()) {
+      print("Form validation failed!");
+      return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -37,28 +41,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
+      
+      // 2. Debug: Log the payload
+      print("Attempting registration for: ${_emailController.text.trim()}");
+      
       final response = await authService.register({
         'username': _usernameController.text.trim(),
         'email': _emailController.text.trim(),
         'password': _passwordController.text.trim(),
       });
 
+      print("Registration response: $response");
+
       if (!mounted) return;
 
       if (response['statusCode'] == 201) {
-        // Success: Navigate back to login or directly home
         Navigator.pop(context); 
       } else {
         setState(() {
-          // Display the specific error from the Django serializer
           _errorMessage = response['body'].toString();
           _isLoading = false;
         });
       }
     } catch (e) {
+      print("Registration error: $e");
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'An error occurred during registration.';
+        _errorMessage = 'An error occurred: $e';
         _isLoading = false;
       });
     }
@@ -76,7 +85,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Username
+                // 3. Added Error Display Area
+                if (_errorMessage != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(8)),
+                    child: Text(_errorMessage!, style: TextStyle(color: Colors.red.shade700)),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
                 TextFormField(
                   controller: _usernameController,
                   decoration: const InputDecoration(labelText: 'Username', border: OutlineInputBorder()),
@@ -84,7 +102,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
                 
-                // Email
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -93,16 +110,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Password
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
                   decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
-                  validator: (value) => (value == null || value.length < 6) ? 'Min 6 characters' : null,
+                  // Updated validator to match Django requirements (min 10)
+                  validator: (value) => (value == null || value.length < 10) ? 'Min 10 characters' : null,
                 ),
                 const SizedBox(height: 24),
 
-                // Register Button
                 ElevatedButton(
                   onPressed: _isLoading ? null : _handleRegister,
                   style: ElevatedButton.styleFrom(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import '../../theme.dart';
-// We will create the RegisterScreen in the next step
 import 'register_screen.dart'; 
 
 class LoginScreen extends StatefulWidget {
@@ -45,8 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (response['statusCode'] == 200) {
-        // Success! AuthService already updated _isAuthenticated
-        // In the next phase, we'll setup routing to redirect home
+        // Success: AuthWrapper will handle navigation automatically
       } else {
         setState(() {
           _errorMessage = response['body']['detail'] ?? 'Login failed. Check your credentials.';
@@ -56,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'An error occurred. Please check your connection.';
+        _errorMessage = 'An error occurred. Check your connection.';
         _isLoading = false;
       });
     }
@@ -75,7 +73,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // App Branding
                   const Icon(Icons.handshake_rounded, size: 80, color: BorrowCircleTheme.primary),
                   const SizedBox(height: 16),
                   const Text(
@@ -85,7 +82,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Error Display
                   if (_errorMessage != null) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -95,7 +91,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                   ],
 
-                  // Email
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -107,7 +102,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Password
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
@@ -115,11 +109,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       labelText: 'Password',
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    validator: (value) => (value == null || value.length < 6) ? 'Password too short' : null,
+                    validator: (value) => (value == null || value.length < 6) ? 'Min 6 characters' : null,
                   ),
                   const SizedBox(height: 24),
 
-                  // Login Button
                   ElevatedButton(
                     onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
@@ -131,6 +124,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: _isLoading 
                         ? const CircularProgressIndicator(color: Colors.white) 
                         : const Text('Log In', style: TextStyle(fontSize: 16)),
+                  ),
+
+                  // --- NEW BUTTON ADDED HERE ---
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                      );
+                    },
+                    child: const Text("Don't have an account? Sign Up"),
                   ),
                 ],
               ),
