@@ -1,4 +1,7 @@
 import uuid
+import secrets
+from django.utils import timezone
+from datetime import timedelta
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
@@ -43,13 +46,12 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True, db_index=True)
     username = models.CharField(max_length=150, unique=True)
-    
+
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.MEMBER)
     account_status = models.CharField(max_length=20, choices=AccountStatus.choices, default=AccountStatus.ACTIVE)
-    
-    is_verified = models.BooleanField(default=False, help_text="Designates whether the user has verified their email.")
-    
-    # Override username field to use email for login
+
+    is_verified = models.BooleanField(default=False)
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
@@ -57,6 +59,47 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.email} ({self.role})"
+
+
+class OTPVerification(models.Model):
+    """Stores OTP codes for email verification and password reset."""
+
+    class OTPType(models.TextChoices):
+        EMAIL_VERIFY = 'email_verify', 'Email Verification'
+        PASSWORD_RESET = 'password_reset', 'Password Reset'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otps')
+    otp_type = models.CharField(max_length=20, choices=OTPType.choices)
+    code = models.CharField(max_length=6)
+    is_used = models.BooleanField(default=False)
+    expires_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def generate_otp():
+        """Generate a cryptographically secure 6-digit OTP code."""
+        return str(secrets.randbelow(900000) + 100000)
+
+    @classmethod
+    def create_for_user(cls, user, otp_type):
+        """Create a new OTP for a user, invalidating any previous ones."""
+        # Invalidate all previous OTPs of same type for this user
+        cls.objects.filter(user=user, otp_type=otp_type, is_used=False).update(is_used=True)
+
+        return cls.objects.create(
+            user=user,
+            otp_type=otp_type,
+            code=cls.generate_otp(),
+            expires_at=timezone.now() + timedelta(minutes=10),
+        )
+
+    def is_valid(self):
+        """Check if OTP is still valid (not used and not expired)."""
+        return not self.is_used and timezone.now() < self.expires_at
+
+    def __str__(self):
+        return f"OTP {self.code} for {self.user.email} ({self.otp_type})"
 
 
 class Profile(models.Model):

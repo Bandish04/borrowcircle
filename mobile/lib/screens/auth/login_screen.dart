@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import '../../theme.dart';
-import 'register_screen.dart'; 
+import 'register_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -38,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final authService = Provider.of<AuthService>(context, listen: false);
       final response = await authService.login(
         _emailController.text.trim(),
-        _passwordController.text.trim(),
+        _passwordController.text,
       );
 
       if (!mounted) return;
@@ -111,7 +112,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     validator: (value) => (value == null || value.length < 6) ? 'Min 6 characters' : null,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
+                        );
+                      },
+                      child: const Text('Forgot Password?'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
 
                   ElevatedButton(
                     onPressed: _isLoading ? null : _handleLogin,

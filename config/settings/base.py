@@ -104,14 +104,37 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'apps.accounts.authentication.CustomJWTAuthentication',
     ],
+
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+
+    # API Rate Limiting
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+
+    'DEFAULT_THROTTLE_RATES': {
+        'login': '10/min',
+        'email_verification': '5/min',
+        'resend_otp': '3/hour',
+        'forgot_password': '3/hour',
+        'verify_reset_code': '5/min',
+        'reset_password': '5/hour',
+    },
+}
+
+# JWT Configuration
+SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 # OpenAPI (Swagger) Configuration

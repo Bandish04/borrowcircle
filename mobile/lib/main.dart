@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/auth_service.dart';
 import 'screens/auth/login_screen.dart';
-import 'screens/marketplace/home_screen.dart'; // Added this import
+import 'screens/auth/verify_email_screen.dart';
+import 'screens/marketplace/home_screen.dart';
 import 'theme.dart';
 
 void main() {
@@ -35,10 +36,18 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
 
-    if (authService.isAuthenticated) {
-      return const HomeScreen(); // Now correctly using HomeScreen
-    } else {
+    if (!authService.isAuthenticated) {
+      // Not logged in → show login
       return const LoginScreen();
     }
+
+    if (!authService.isVerified) {
+      // Logged in but email not verified → show verify screen
+      // Pass the stored email so the screen can display it
+      return VerifyEmailScreen(email: authService.currentEmail);
+    }
+
+    // Logged in and verified → go to app
+    return const HomeScreen();
   }
 }

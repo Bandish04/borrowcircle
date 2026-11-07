@@ -35,12 +35,14 @@ class _AddItemScreenState extends State<AddItemScreen> {
       final categories = await MarketplaceService.fetchCategories();
       setState(() {
         _categories = categories;
+        // Safely set the initial value if categories exist
         if (categories.isNotEmpty) {
           _selectedCategoryId = categories[0]['id'].toString();
         }
         _isFetchingCategories = false;
       });
     } catch (e) {
+      print("Error fetching categories: $e");
       setState(() => _isFetchingCategories = false);
     }
   }
@@ -56,7 +58,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
   }
 
   Future<void> _handleSubmit() async {
-    if (!_formKey.currentState!.validate() || _selectedCategoryId == null) return;
+    if (!_formKey.currentState!.validate() || _selectedCategoryId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields and select a category.')),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -113,17 +120,23 @@ class _AddItemScreenState extends State<AddItemScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Category Dropdown
+                    // Category Dropdown - Updated for robustness
                     DropdownButtonFormField<String>(
                       value: _selectedCategoryId,
-                      decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder()),
+                      isExpanded: true, // Crucial for layout
+                      decoration: const InputDecoration(
+                        labelText: 'Category',
+                        border: OutlineInputBorder(),
+                        filled: true,
+                      ),
                       items: _categories.map<DropdownMenuItem<String>>((cat) {
                         return DropdownMenuItem<String>(
                           value: cat['id'].toString(),
-                          child: Text(cat['name']),
+                          child: Text(cat['name'] ?? 'Unnamed'),
                         );
                       }).toList(),
                       onChanged: (val) => setState(() => _selectedCategoryId = val),
+                      validator: (value) => value == null ? 'Please select a category' : null,
                     ),
                     const SizedBox(height: 16),
 
